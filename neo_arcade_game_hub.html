@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NEO ARCADE // Game Hub</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #090a0f;
+      --bg-surface: #0e111a;
+      --bg-card: rgba(18, 22, 33, 0.75);
+      --bg-glass: rgba(26, 32, 48, 0.55);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.22);
+
+      --accent-emerald: #10b981;
+      --accent-emerald-glow: rgba(16, 185, 129, 0.3);
+      --accent-cyan: #06b6d4;
+      --accent-cyan-glow: rgba(6, 182, 212, 0.3);
+      --accent-purple: #8b5cf6;
+      --accent-purple-glow: rgba(139, 92, 246, 0.3);
+      --accent-amber: #f59e0b;
+      --accent-danger: #f43f5e;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-subtle: #475569;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-base);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      color: var(--text-main);
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Ambient background glows */
+    .ambient-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(100px);
+      opacity: 0.12;
+      transition: background 0.6s ease;
+    }
+    #ambient-1 {
+      top: -150px;
+      left: 10%;
+      background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
+    }
+    #ambient-2 {
+      bottom: -150px;
+      right: 10%;
+      background: radial-gradient(circle, var(--accent-purple), transparent 70%);
+    }
+
+    /* Main Hub Layout Container */
+    #hub-view {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      min-height: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 48px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Top Navigation Bar */
+    .hub-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid var(--border-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    }
+
+    .brand-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: var(--accent-cyan);
+      stroke-width: 2;
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hub-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      height: 36px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hub-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-hover);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-1px);
+    }
+
+    .hub-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Stats & Device Platform Bar */
+    .dashboard-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .dash-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .dash-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dash-label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+    }
+
+    .dash-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .dash-val.highlight {
+      color: var(--accent-emerald);
+      text-shadow: 0 0 16px var(--accent-emerald-glow);
+    }
+
+    /* Controls & Filter Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 240px;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 2;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 14px 0 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(12px);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.15);
+    }
+
+    .launch-mode-toggle {
+      display: flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    /* Games Showcase Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    /* Single Game Card */
+    .game-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .game-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--card-color, var(--accent-cyan));
+      opacity: 0.6;
+      transition: opacity 0.25s ease;
+    }
+
+    .game-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    .game-card:hover::before {
+      opacity: 1;
+      box-shadow: 0 0 14px var(--card-color, var(--accent-cyan));
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .card-icon-frame {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--card-color, var(--accent-cyan));
+      box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-icon-frame svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .card-tag {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--card-color, var(--accent-cyan));
+    }
+
+    .card-body h3 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .card-body p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      min-height: 40px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .meta-title {
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .meta-val.score {
+      color: var(--accent-emerald);
+    }
+
+    .play-btn {
+      width: 100%;
+      height: 44px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--card-color, var(--accent-cyan));
+      color: #04121a;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .play-btn:hover {
+      filter: brightness(1.12);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .play-btn:active {
+      transform: translateY(1px);
+    }
+
+    .play-btn svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    /* ========================================================= */
+    /* ARCADE CABINET / FRAME OVERLAY MODE                       */
+    /* ========================================================= */
+    #frame-overlay {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: frameFadeIn 0.25s ease-out forwards;
+    }
+
+    @keyframes frameFadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Floating Game Navigation HUD */
+    .frame-hud {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 46px;
+      padding: 0 14px;
+      background: rgba(14, 17, 26, 0.85);
+      border: 1px solid var(--border-hover);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      z-index: 1002;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .frame-hud.hidden-hud {
+      opacity: 0.15;
+      transform: translate(-50%, -80%);
+    }
+
+    .frame-hud:hover {
+      opacity: 1 !important;
+      transform: translate(-50%, 0) !important;
+    }
+
+    .hud-title-badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-right: 12px;
+      border-right: 1px solid var(--border-subtle);
+    }
+
+    .hud-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      transition: all 0.15s ease;
+    }
+
+    .hud-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hud-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .hud-btn.exit-btn {
+      color: var(--accent-danger);
+    }
+    .hud-btn.exit-btn:hover {
+      background: rgba(244, 63, 94, 0.15);
+      color: #ff6b81;
+    }
+
+    #game-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: var(--bg-base);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 640px) {
+      #hub-view {
+        padding: 16px 14px 36px 14px;
+        gap: 20px;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-box {
+        max-width: 100%;
+      }
+      .games-grid {
+        grid-template-columns: 1fr;
+      }
+      .frame-hud {
+        top: 8px;
+        height: 40px;
+        padding: 0 10px;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background decorative light cones -->
+  <div class="ambient-glow" id="ambient-1"></div>
+  <div class="ambient-glow" id="ambient-2"></div>
+
+  <!-- MAIN CONNECTOR HUB -->
+  <div id="hub-view">
+    <!-- Header -->
+    <header class="hub-header">
+      <div class="brand-wrap">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><polygon points="6 2 18 2 18 6 6 6 6 2"></polygon><rect x="3" y="6" width="18" height="16" rx="2"></rect><line x1="10" y1="12" x2="14" y2="12"></line><line x1="12" y1="10" x2="12" y2="14"></line><circle cx="16" cy="16" r="1"></circle></svg>
+        </div>
+        <div class="brand-text">
+          <h1>NEO ARCADE</h1>
+          <p>Retro Web Engine</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-sound-toggle" class="hub-btn" title="Toggle Synthesizer Sound">
+          <svg id="sound-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+          <span id="sound-label">Audio</span>
+        </button>
+        <button id="btn-hub-fullscreen" class="hub-btn" title="Fullscreen Hub">
+          <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Dashboard Stats Bar -->
+    <section class="dashboard-bar">
+      <div class="dash-card">
+        <span class="dash-label"><span class="dash-label-dot" style="background: var(--accent-cyan);"></span>Library Size</span>
+        <span id="stat-total-games" class="dash-val">--</span>
+      </div>
+      <div class="dash-card">
+        <span class="dash-label"><span class="dash-label-dot" style="background: var(--accent-emerald);"></span>Combined Highscore</span>
+        <span id="stat-total-score" class="dash-val highlight">--</span>
+      </div>
+      <div class="dash-card">
+        <span class="dash-label"><span class="dash-label-dot" style="background: var(--accent-purple);"></span>Platform Profile</span>
+        <span id="stat-platform-detect" class="dash-val" style="font-size: 14px; font-weight: 600;">Detecting...</span>
+      </div>
+    </section>
+
+    <!-- Search & Launch Mode Toolbar -->
+    <section class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="game-search" class="search-input" placeholder="Search arcade titles, tags, controls..." autocomplete="off">
+      </div>
+
+      <div class="launch-mode-toggle">
+        <button id="mode-frame" class="mode-btn active" title="Play seamlessly with arcade overlay">Cabinet Mode</button>
+        <button id="mode-direct" class="mode-btn" title="Open directly as standalone page">Direct Link</button>
+      </div>
+    </section>
+
+    <!-- Games Registry Card Grid -->
+    <main class="games-grid" id="games-container">
+      <!-- Generated automatically by Registry Controller below -->
+    </main>
+  </div>
+
+  <!-- SEAMLESS ARCADE CABINET OVERLAY -->
+  <div id="frame-overlay">
+    <div class="frame-hud" id="frame-hud">
+      <div class="hud-title-badge">
+        <span id="frame-game-dot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--accent-cyan);"></span>
+        <span id="frame-game-title">Game Title</span>
+      </div>
+      <button id="btn-frame-reload" class="hud-btn" title="Restart Game">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+      </button>
+      <button id="btn-frame-fs" class="hud-btn" title="Toggle Fullscreen">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      </button>
+      <button id="btn-frame-exit" class="hud-btn exit-btn" title="Return to Game Picker">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <iframe id="game-frame" src="about:blank" allow="autoplay; fullscreen" loading="lazy"></iframe>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * SECTION 1: PLUGGABLE GAMES REGISTRY
+     * =========================================================================
+     * TO ADD A NEW GAME TO THE HUB:
+     * 1. Add your HTML file (e.g., 'pacman.html' or 'breakout.html') to the root.
+     * 2. Append an object to the GAMES array below.
+     * Everything else (rendering, search, localStorage high scores,
+     * iframe overlay launching) works completely automatically.
+     */
+    const GAMES = [
+      {
+        id: 'snake',
+        title: 'Cyber Snake',
+        file: 'snake.html',
+        tag: 'Arcade',
+        description: 'Fluid grid evasion with responsive speed scaling, tactile D-pad, and neon glow trail.',
+        controls: 'WASD / Arrows / Touch Swipe',
+        color: '#10b981',
+        scoreKey: 'sleek_snake_hi',
+        svgIcon: `<svg viewBox="0 0 24 24"><polyline points="4 17 10 11 14 15 20 9"></polyline><polyline points="14 9 20 9 20 15"></polyline></svg>`
+      },
+      {
+        id: 'tetris',
+        title: 'Neon Tetris',
+        file: 'tetris.html',
+        tag: 'Puzzle',
+        description: 'SRS 7-bag matrix builder with ghost piece projection, hold queue, and particle row bursts.',
+        controls: 'Arrows / Space / Touch Buttons',
+        color: '#8b5cf6',
+        scoreKey: 'sleek_tetris_hi',
+        svgIcon: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`
+      }
+      /*
+      // EXAMPLE: How to plug in a 3rd game:
+      , {
+        id: 'space_invaders',
+        title: 'Void Invaders',
+        file: 'invaders.html',
+        tag: 'Shooter',
+        description: 'Defend the perimeter against descent waves with dual railgun cannons.',
+        controls: 'A/D / Space / Virtual Touch',
+        color: '#06b6d4',
+        scoreKey: 'invaders_high_score',
+        svgIcon: `<svg viewBox="0 0 24 24"><polygon points="12 2 19 21 12 17 5 21 12 2"></polygon></svg>`
+      }
+      */
+    ];
+
+    /**
+     * =========================================================================
+     * SECTION 2: SYNTHESIZED WEB AUDIO UI SOUNDS
+     * =========================================================================
+     */
+    class HubSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      beep(freq, duration, type = 'sine', vol = 0.04) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+
+      hover() {
+        this.beep(520, 0.03, 'sine', 0.015);
+      }
+
+      launch() {
+        this.beep(330, 0.06, 'triangle', 0.05);
+        setTimeout(() => this.beep(660, 0.09, 'sine', 0.06), 40);
+      }
+
+      close() {
+        this.beep(400, 0.05, 'triangle', 0.04);
+        setTimeout(() => this.beep(240, 0.08, 'sine', 0.04), 30);
+      }
+
+      toggle() {
+        this.enabled = !this.enabled;
+        return this.enabled;
+      }
+    }
+
+    /**
+     * =========================================================================
+     * SECTION 3: MASTER HUB & LAUNCH CONTROLLER
+     * =========================================================================
+     */
+    class ArcadeHub {
+      constructor() {
+        this.audio = new HubSoundEngine();
+        this.launchMode = localStorage.getItem('neo_launch_mode') || 'frame'; // 'frame' | 'direct'
+        this.activeGame = null;
+
+        // Cached DOM Elements
+        this.container = document.getElementById('games-container');
+        this.searchInput = document.getElementById('game-search');
+        this.overlay = document.getElementById('frame-overlay');
+        this.gameFrame = document.getElementById('game-frame');
+        this.frameHud = document.getElementById('frame-hud');
+        this.frameTitle = document.getElementById('frame-game-title');
+        this.frameDot = document.getElementById('frame-game-dot');
+
+        this.init();
+      }
+
+      init() {
+        this.detectPlatform();
+        this.updateStats();
+        this.renderCards(GAMES);
+        this.bindEvents();
+        this.syncLaunchModeUI();
+      }
+
+      detectPlatform() {
+        const ua = navigator.userAgent.toLowerCase();
+        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
+        const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+        const badge = document.getElementById('stat-platform-detect');
+        if (isMobile || isTouch) {
+          badge.textContent = 'Android / Touch Ready';
+          badge.style.color = 'var(--accent-emerald)';
+        } else {
+          badge.textContent = 'Windows / Keyboard Ready';
+          badge.style.color = 'var(--accent-cyan)';
+        }
+      }
+
+      updateStats() {
+        // Total Games
+        document.getElementById('stat-total-games').textContent = GAMES.length;
+
+        // Aggregate High Scores from localStorage
+        let totalScore = 0;
+        GAMES.forEach(game => {
+          const val = parseInt(localStorage.getItem(game.scoreKey) || '0', 10);
+          if (!isNaN(val)) totalScore += val;
+        });
+
+        document.getElementById('stat-total-score').textContent = totalScore.toLocaleString();
+      }
+
+      renderCards(gamesList) {
+        this.container.innerHTML = '';
+
+        if (gamesList.length === 0) {
+          this.container.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-subtle);">
+              <p style="font-size: 16px; font-weight: 600;">No matching arcade games found.</p>
+              <p style="font-size: 13px; margin-top: 6px;">Try searching for a different title, tag, or control scheme.</p>
+            </div>
+          `;
+          return;
+        }
+
+        gamesList.forEach(game => {
+          const card = document.createElement('article');
+          card.className = 'game-card';
+          card.style.setProperty('--card-color', game.color);
+
+          const savedHi = localStorage.getItem(game.scoreKey) || '0';
+
+          card.innerHTML = `
+            <div>
+              <div class="card-top">
+                <div class="card-icon-frame">
+                  ${game.svgIcon}
+                </div>
+                <span class="card-tag">${game.tag}</span>
+              </div>
+              <div class="card-body" style="margin-top: 14px;">
+                <h3>${game.title}</h3>
+                <p>${game.description}</p>
+              </div>
+            </div>
+
+            <div>
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="meta-title">Best Score</span>
+                  <span class="meta-val score" id="score-val-${game.id}">${savedHi}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-title">Input</span>
+                  <span class="meta-val">${game.controls}</span>
+                </div>
+              </div>
+
+              <button class="play-btn" data-game-id="${game.id}" style="margin-top: 14px;">
+                <span>LAUNCH GAME</span>
+                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </button>
+            </div>
+          `;
+
+          // Hover Audio Effect
+          card.addEventListener('mouseenter', () => this.audio.hover());
+
+          // Launch Action
+          const playBtn = card.querySelector('.play-btn');
+          playBtn.addEventListener('click', () => {
+            this.audio.launch();
+            this.launchGame(game);
+          });
+
+          this.container.appendChild(card);
+        });
+      }
+
+      bindEvents() {
+        // Search Filter
+        this.searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          const filtered = GAMES.filter(g =>
+            g.title.toLowerCase().includes(query) ||
+            g.tag.toLowerCase().includes(query) ||
+            g.controls.toLowerCase().includes(query) ||
+            g.description.toLowerCase().includes(query)
+          );
+          this.renderCards(filtered);
+        });
+
+        // Launch Mode Switching
+        const btnFrame = document.getElementById('mode-frame');
+        const btnDirect = document.getElementById('mode-direct');
+
+        btnFrame.addEventListener('click', () => {
+          this.setLaunchMode('frame');
+          this.audio.hover();
+        });
+
+        btnDirect.addEventListener('click', () => {
+          this.setLaunchMode('direct');
+          this.audio.hover();
+        });
+
+        // Audio Button
+        const sndBtn = document.getElementById('btn-sound-toggle');
+        sndBtn.addEventListener('click', () => {
+          const active = this.audio.toggle();
+          document.getElementById('sound-icon').style.opacity = active ? '1' : '0.3';
+          document.getElementById('sound-label').textContent = active ? 'Audio' : 'Muted';
+        });
+
+        // Hub Fullscreen
+        document.getElementById('btn-hub-fullscreen').addEventListener('click', () => {
+          this.toggleFullscreen(document.documentElement);
+        });
+
+        // Arcade Frame Controls
+        document.getElementById('btn-frame-exit').addEventListener('click', () => {
+          this.audio.close();
+          this.closeCabinet();
+        });
+
+        document.getElementById('btn-frame-reload').addEventListener('click', () => {
+          if (this.gameFrame.contentWindow) {
+            this.gameFrame.contentWindow.location.reload();
+          }
+        });
+
+        document.getElementById('btn-frame-fs').addEventListener('click', () => {
+          this.toggleFullscreen(this.overlay);
+        });
+
+        // Auto dim HUD when playing in iframe
+        let hudTimer;
+        window.addEventListener('mousemove', () => {
+          if (this.overlay.style.display === 'flex') {
+            this.frameHud.classList.remove('hidden-hud');
+            clearTimeout(hudTimer);
+            hudTimer = setTimeout(() => {
+              this.frameHud.classList.add('hidden-hud');
+            }, 3000);
+          }
+        });
+
+        // Keyboard Shortcut: Escape exits overlay
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.overlay.style.display === 'flex') {
+            this.closeCabinet();
+          }
+        });
+      }
+
+      setLaunchMode(mode) {
+        this.launchMode = mode;
+        localStorage.setItem('neo_launch_mode', mode);
+        this.syncLaunchModeUI();
+      }
+
+      syncLaunchModeUI() {
+        const btnFrame = document.getElementById('mode-frame');
+        const btnDirect = document.getElementById('mode-direct');
+        if (this.launchMode === 'frame') {
+          btnFrame.classList.add('active');
+          btnDirect.classList.remove('active');
+        } else {
+          btnDirect.classList.add('active');
+          btnFrame.classList.remove('active');
+        }
+      }
+
+      launchGame(game) {
+        this.activeGame = game;
+
+        if (this.launchMode === 'direct') {
+          // Navigates directly to the external HTML file
+          window.location.href = game.file;
+        } else {
+          // Opens inside seamless overlay cabinet
+          this.frameTitle.textContent = game.title;
+          this.frameDot.style.background = game.color;
+          this.gameFrame.src = game.file;
+          this.overlay.style.display = 'flex';
+
+          // Focus the iframe so keyboard/touch registers immediately
+          this.gameFrame.onload = () => {
+            this.gameFrame.focus();
+          };
+        }
+      }
+
+      closeCabinet() {
+        this.overlay.style.display = 'none';
+        this.gameFrame.src = 'about:blank';
+        this.activeGame = null;
+        // Refresh high scores that might have been updated inside the game
+        this.updateStats();
+        this.renderCards(GAMES);
+      }
+
+      toggleFullscreen(el) {
+        if (!document.fullscreenElement) {
+          if (el.requestFullscreen) el.requestFullscreen();
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      }
+    }
+
+    // Launch Hub upon DOM ready
+    window.addEventListener('load', () => {
+      new ArcadeHub();
+    });
+  </script>
+</body>
+</html>
